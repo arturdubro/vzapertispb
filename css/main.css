@@ -103,11 +103,12 @@ input[name='hour'] {
         font-size: 20px;
 }
 input#phone {
-        font-size: 18px;
+        font-size: 16px;
 }
 #time {
         display: block; 
-        float: left; 
+        float: left;
+        width: 190px;
         margin-top: 40px; 
         margin-left: 70px;
         text-align: left;
