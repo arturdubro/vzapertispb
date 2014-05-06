@@ -8,7 +8,7 @@ body {
         color: white; 
         font-family: 'Comfortaa', cursive; 
         line-height: 2em; 
-        min-width: 1200px; 
+        min-width: 1120px; 
 }
 h1 { 
         font-size: 48pt; 
@@ -97,7 +97,7 @@ a:hover {
 }
 .order-wrapper {
         margin: 0 auto; 
-        width: 1200px;
+        width: 1110px;
 }
 input[name='hour'] {
         font-size: 20px;
