@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>взаперти</title>
+
+    <script src='./js/jquery.min.js'></script>
+    <script src='./js/jquery-ui.custom.min.js'></script>
+    <script src='./js/fullcalendar.min.js'></script>
+    <script>
+        $(document).ready(function() {
+            $('#calendar').fullCalendar({
+                firstDay: 1
+            });
+            $(document.body).on('click', '.fc-day', function(e) {
+                var el = $(e.target).closest('.fc-day');
+                if (el.hasClass('fc-other-month')) { return false; }
+                if (el.hasClass('fc-past')) { return false; }
+
+                var date = el.attr('data-date');
+                var we = (el.hasClass('fc-sat') || el.hasClass('fc-sun'));
+
+                $('.fc-day').css({'font-size': '', 'padding': ''});
+                el.css({'font-size': '48pt', 'font-weight': 'bold', 'padding-top': '20px', 'padding-right': '10px'});
+
+                $('.fc-day').removeClass('fc-selected');
+                el.addClass('fc-selected');
+
+                $.ajax("api.php?action=get_day&day=" + date, {dataType: 'json'}).done(function(data) {
+                    if (data.status == 0) {
+                        $('#time').slideUp(400, function() {
+                            if (we) { $('.price21').html('- 2500р.'); $('.price22').html('- 3000р.'); $('.price23').html('- 2500р.'); }
+                            else { $('.price11').html('- 2000р.'); $('.price12').html('- 2500р.'); }
+                            if (we) { $('.we').show().next().show(); } else { $('.we').hide().next().hide(); }
+                            $('.hour').prop('disabled', false).prop('checked', false).next().css({'color': ''}).next().css({'color': ''});
+                            for (var k in data.busy_hours) {
+                                console.log(data.busy_hours[k]);
+                                $('#hour_' + data.busy_hours[k]).prop('disabled', true).next().css({'color': '#999'}).next().css({'color': '#999'});
+                            }
+                            $('#time').slideDown();
+                        });
+                    }
+                })
+                .fail(function() {
+                    alert("К сожалению, произошла ошибка. Мы уже работаем над её исправлением. Попробуйте, пожалуйста, ещё раз.");
+                });
+            });
+
+            $(document.body).on('click', '#order', function(e) {
+                var phone = $('#phone').val();
+                if (!phone) { alert('Нужно указать номер мобильного телефона, чтобы наш менеджер смог связаться с вами.'); return; }
+                var hour = $('input[name=hour]:checked').val();
+                if (!hour) { alert('Вы забыли выбрать время, на которое вас нужно записать.'); return; }
+
+                var date = $('.fc-selected').attr('data-date');
+
+                if (phone.replace(/[^\d.]/g, "").length < 11) { alert('Кажется, вы ввели неправильный номер телефона. Проверьте, пожалуйста.'); return; }
+
+                $.ajax("api.php?action=new_order&day=" + date + "&hour=" + hour + "&phone=" + encodeURIComponent(phone), {dataType: 'json'}).done(function(data) {
+                    if (data.status == 0) {
+                        $('#time').slideUp(400, function() {
+                            alert('Ваша заявка принята, спасибо!'); // На ваш телефон отправлено смс с датой и временем.');
+                        });
+                    }
+                })
+                .fail(function() {
+                    alert("К сожалению, произошла ошибка. Мы уже работаем над её исправлением. Попробуйте, пожалуйста, ещё раз.");
+                });
+            });
+
+            $('.fc-other-month').css({'cursor': 'default'});
+            $('.fc-past').css({'cursor': 'default', 'color': '#999'});
+            $(document.body).on('click', '.fc-button', function(e) {
+                $('.fc-other-month').css({'cursor': 'default'});
+                $('.fc-past').css({'cursor': 'default', 'color': '#999'});
+            });
+        });        
+    </script>
+    <link href='./css/fullcalendar.css' rel='stylesheet' />
+    <link href='./css/fullcalendar.print.css' rel='stylesheet' media='print' />
+    <link href="./css/main.css" media="screen" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+
+    <div id="menu">
+        <h3 class="menu-item"><a href="#quest">Квест</a></h3>
+        <h3 class="menu-item"><a href="#rules">Правила</a></h3>
+        <h3 class="menu-item"><a href="#contacts">Контакты</a></h3>
+        <h3 class="menu-item"><a href="#play">Играть!</a></h3>
+        <h3 class="menu-right"><a href="http://vk.com/vzapertispb"><img src="./img/vk.png" /></h3>
+    </div>
+
+    <a id="quest"></a>
+    <div class="block block-first">
+        <h1><!-- взаперти --><br/></h1>
+        <h3 style='padding: 1em;'>квест в реальном мире</h3>
+        <p class="block-text">
+        Хотите почувствовать себя участником компьютерной игры прямо сейчас?
+        <br/>
+        Команда Взаперти представляет квест в реальном времени, где основная задача – это выбраться из стилизованного помещения за 60 минут! 
+        Играть можно как парой, так и командой до 6 человек!
+        Все реально! Представьте: Вы в комнате/помещении, где каждый предмет – это загадка, а возможно ключ к двери или ловушка?
+        Хотите испытать себя, на что способны Вы, оказавшись Взаперти?
+        <br/>
+        Сейчас работает одна комната "По ту сторону закона"
+        С 6 по 8 мая комната работает в тестовом режиме. С 9 мая открыта запись на игру.
+        </p>
+    </div>
+
+    <a id="rules"></a>
+    <div class="block block-even">
+        <h2>правила</h2>
+        <p class="block-text">
+            Вы когда-нибудь играли в компьютерные игры-квесты? Наша игра такая же, только все происходит на самом деле.
+            Вы заперты в комнате, и ваша задача&nbsp;— выйти из неё.
+            Для этого вам придется изучить множество предметов, разгадать несколько головоломок, правильно воспользоваться подсказками, найти нужные ключи и открыть двери.
+            <br/><br/>
+            Вся игра занимает один час. Даже если у вас не получится отгадать все загадки за это время, дверь откроется все равно.
+            Но вы наверняка захотите вернутся в эту комнату, и попробовать еще раз.
+            <br/><br/>
+            Проходить игру можно командой от двух до четырех человек: некоторые задания невозможно выполнить одному.
+            Вам потребуется логика, внимательность и хорошее настроение :)
+        </p>
+    </div>
+
+    <a id="contacts"></a>
+    <div class="block block-odd">
+        <h2>контакты</h2>
+        <div id="map"></div>
+        <h3>
+            +7 (921) 762-41-87
+            <br/>
+            Санкт-Петербург, Казанская ул., д. 7
+            <br/>
+            <a href="mailto:quest@vzapertispb.ru">quest@vzapertispb.ru</a>
+        </h3>
+    </div>
+
+    <a id="play"></a>
+    <div class="block block-last">
+        <h2>играть</h2>
+        <h3 style='padding: 1em;'>записаться на квест можно здесь</h3>
+
+        <div style="margin: 0 auto; width: 1110px;">
+                <div id="calendar" style="float: left;"></div>
+                <div id="time">
+                <input name="hour" class="hour" id="hour_0900"  type="radio" value="0900"  /><span> 9:00</span> <span class="price price11 price21"></span><br/>
+                <input name="hour" class="hour" id="hour_1015" type="radio" value="1015" /><span> 10:15</span> <span class="price price11 price21"></span><br/>
+                <input name="hour" class="hour" id="hour_1130" type="radio" value="1130" /><span> 11:30</span> <span class="price price11 price21"></span><br/>
+                <input name="hour" class="hour" id="hour_1245" type="radio" value="1245" /><span> 12:45</span> <span class="price price11 price21"></span><br/>
+                <input name="hour" class="hour" id="hour_1400" type="radio" value="1400" /><span> 14:00</span> <span class="price price11 price21"></span><br/>
+                <input name="hour" class="hour" id="hour_1515" type="radio" value="1515" /><span> 15:15</span> <span class="price price11 price22"></span><br/>
+                <input name="hour" class="hour" id="hour_1630" type="radio" value="1630" /><span> 16:30</span> <span class="price price11 price22"></span><br/>
+                <input name="hour" class="hour" id="hour_1745" type="radio" value="1745" /><span> 17:45</span> <span class="price price12 price22"></span><br/>
+                <input name="hour" class="hour" id="hour_1900" type="radio" value="1900" /><span> 19:00</span> <span class="price price12 price22"></span><br/>
+                <input name="hour" class="hour" id="hour_2015" type="radio" value="2015" /><span> 20:15</span> <span class="price price12 price22"></span><br/>
+                <input name="hour" class="hour" id="hour_2130" type="radio" value="2130" /><span> 21:30</span> <span class="price price12 price22"></span><br/>
+                <input name="hour" class="hour" id="hour_2245" type="radio" value="2245" /><span> 22:45</span> <span class="price price12 price22"></span><br/>
+                <input name="hour" class="hour" id="hour_0000" type="radio" value="0000" /><span> 0:00</span> <span class="price price12 price23"></span><br/>
+                <input name="hour" class="hour" id="hour_0115" type="radio" value="0115" /><span> 1:15</span> <span class="price price12 price23"></span><br/>
+                <input name="hour" class="hour" id="hour_0230" type="radio" value="0230" /><span> 2:30</span> <span class="price price12 price23"></span><br/>
+                <input name="hour" class="hour" id="hour_0345"  type="radio" value="0345"  /><span> 3:45</span> <span class="price price12 price23"></span><br/>
+                <input name="hour" class="hour we" id="hour_0400" type="radio" value="0400" /><span> 4:00 <span class="price price23"></span><br/></span>
+                <input name="hour" class="hour we" id="hour_0515" type="radio" value="0515" /><span> 5:15 <span class="price price23"></span><br/></span>
+                Ваш телефон:<br/><input id="phone" placeholder="+X (XXX) XXX-XX-XX"><br>
+                <input type="submit" value=" записаться " id="order" class="order">
+                </div>
+        </div>
+    </div>
+
+    <script src="http://api-maps.yandex.ru/2.0/?load=package.full&amp;lang=ru-RU" type="text/javascript"></script>
+    <script>
+        ymaps.ready(init);
+
+        function init () {
+            var myMap = new ymaps.Map("map", {
+                center: [59.93229, 30.32132],
+                zoom: 15
+            }),
+
+            myGeoObject = new ymaps.GeoObject({
+                geometry: {
+                    type: "Point",
+                    coordinates: [59.9324, 30.3215]
+                },
+                properties: {
+                    iconContent: 'Квест',
+                    balloonContent: 'Казанская, 7'
+                }
+            }, {
+                preset: 'twirl#redStretchyIcon',
+                draggable: false
+            });
+
+            myMap.geoObjects
+                .add(myGeoObject);
+        }
+    </script>
+
+  </body>
+</html>
