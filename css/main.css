@@ -104,6 +104,7 @@ input[name='hour'] {
 }
 input#phone {
         font-size: 16px;
+        width: 180px;
 }
 #time {
         display: block; 
